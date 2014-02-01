@@ -3,6 +3,7 @@
  * @constructor
  */
 function PubSub(){
+    this.handlerBox = {};
 };
 
 /**
@@ -12,6 +13,8 @@ function PubSub(){
  * @return {function}         ссылка на handler
  */
 PubSub.prototype.subscribe = function(eventName, handler) {
+    if (this.handlerBox[eventName] == undefined) this.handlerBox[eventName] = [];
+    PubSub.handlerBox[eventName].push(handler);
     return handler;
 };
 
@@ -22,6 +25,13 @@ PubSub.prototype.subscribe = function(eventName, handler) {
  * @return {function}         ссылка на handler
  */
 PubSub.prototype.unsubscribe = function(eventName, handler) {
+
+    var tempWay = this.handlerBox[eventName];
+
+    while (tempWay.indexOf(handler) != -1){
+        tempWay.splice(tempWay.indexOf(handler), 1);
+    }
+
     return handler;
 };
 
@@ -32,7 +42,15 @@ PubSub.prototype.unsubscribe = function(eventName, handler) {
  * @return {bool}             удачен ли результат операции
  */
 PubSub.prototype.publish = function(eventName, data) {
-    return false;
+
+    if (this.handlerBox[eventName] == undefined){
+        return false;
+    } else{
+        this.handlerBox[eventName].forEach(function(item){
+            setTimeout(item(eventName, data), 5);
+        });
+        return true;
+    }
 };
 
 /**
@@ -41,8 +59,16 @@ PubSub.prototype.publish = function(eventName, data) {
  * @return {bool}             удачен ли результат операции
  */
 PubSub.prototype.off = function(eventName) {
-    return false;
+
+    if (this.handlerBox[eventName] == undefined){
+        return false;
+    } else { 
+        this.handlerBox[eventName] = undefined;
+        return true;
+    }
 };
+
+var PubSub = new PubSub();
 
 /**
  * @example
@@ -62,10 +88,19 @@ PubSub.prototype.off = function(eventName) {
     нужно заставить работать методы верно у любой функции
  */
 
+Function.prototype.subscribe = function(event){
+    PubSub.subscribe(event, this);
+}
+
+Function.prototype.unsubscribe = function(event){
+    PubSub.unsubscribe(event, this);
+}
+
 function foo(event, data) {
     //body…
 }
 
-foo.subscribe('click');
+/*foo.subscribe('click');
 
-foo.unsubscribe('click');
+foo.unsubscribe('click');*/
+
