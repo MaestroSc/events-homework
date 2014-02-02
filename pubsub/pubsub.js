@@ -14,7 +14,7 @@ function PubSub(){
  */
 PubSub.prototype.subscribe = function(eventName, handler) {
     if (this.handlerBox[eventName] == undefined) this.handlerBox[eventName] = [];
-    PubSub.handlerBox[eventName].push(handler);
+    if (this.handlerBox[eventName].indexOf(handler) == -1) PubSub.handlerBox[eventName].push(handler);
     return handler;
 };
 
@@ -28,9 +28,7 @@ PubSub.prototype.unsubscribe = function(eventName, handler) {
 
     var tempWay = this.handlerBox[eventName];
 
-    while (tempWay.indexOf(handler) != -1){
-        tempWay.splice(tempWay.indexOf(handler), 1);
-    }
+    if (tempWay.indexOf(handler) != -1) tempWay.splice(tempWay.indexOf(handler), 1);
 
     return handler;
 };
