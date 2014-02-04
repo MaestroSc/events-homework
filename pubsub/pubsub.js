@@ -26,9 +26,9 @@ PubSub.prototype.subscribe = function(eventName, handler) {
  */
 PubSub.prototype.unsubscribe = function(eventName, handler) {
 
-    var tempWay = this.handlerBox[eventName];
+    var tempWay = this.handlerBox[eventName].indexOf(handler);
 
-    if (tempWay.indexOf(handler) != -1) tempWay.splice(tempWay.indexOf(handler), 1);
+    if (tempWay != -1) this.handlerBox[eventName].splice(tempWay, 1);
 
     return handler;
 };
@@ -45,7 +45,9 @@ PubSub.prototype.publish = function(eventName, data) {
         return false;
     } else{
         this.handlerBox[eventName].forEach(function(item){
-            setTimeout(item(eventName, data), 5);
+            setTimeout(function(){
+                return item(eventName, data);
+            }, 5);
         });
         return true;
     }
