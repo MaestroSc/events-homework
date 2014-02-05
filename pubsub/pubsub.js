@@ -21,12 +21,14 @@ function PubSub(){
  * @return {function}         ссылка на handler
  */
 PubSub.prototype.subscribe = function(eventName, handler) {
+    
+    var thisHandler = this.handlerBox; //Если объявить с [eventName], то 
 
-    if (this.handlerBox[eventName] == undefined) this.handlerBox[eventName] = [];
+    if (!thisHandler[eventName]) thisHandler[eventName] = []; // здесь тогда в объекте некорректно создастся поле для [eventName] и 
 
-    var thisHandler = this.handlerBox[eventName];
-
-    if (thisHandler.indexOf(handler) == -1) thisHandler.push(handler);
+    thisHandler = thisHandler[eventName];
+    
+    if (thisHandler.indexOf(handler) == -1) thisHandler.push(handler); // здесь результат indexOf будет undefained
     return handler;
 };
 
@@ -37,8 +39,7 @@ PubSub.prototype.subscribe = function(eventName, handler) {
  * @return {function}         ссылка на handler
  */
 PubSub.prototype.unsubscribe = function(eventName, handler) {
-    var handlerIndex = this.handlerBox[eventName].indexOf(handler),
-        thisHandler = this.handlerBox[eventName];
+    var thisHandler = this.handlerBox[eventName], handlerIndex = thisHandler.indexOf(handler);
 
     if (handlerIndex != -1) thisHandler.splice(handlerIndex, 1);
 
@@ -52,18 +53,19 @@ PubSub.prototype.unsubscribe = function(eventName, handler) {
  * @return {bool}             удачен ли результат операции
  */
 PubSub.prototype.publish = function(eventName, data) {
+    var thisHandler = this.handlerBox[eventName];
 
-    if (this.handlerBox[eventName] == undefined){
-        return false;
-    } else{
-        this.handlerBox[eventName].forEach(function(item){
-            setTimeout(function(){
-                return item(eventName, data);
-            }, 5);
-        });
-        return true;
-    }
-};
+    if (!thisHandler) return false;
+
+    thisHandler.forEach(function(item) {
+        setTimeout(
+            function(){ return item(eventName, data); },
+            5
+        );
+    });
+
+    return true;
+}
 
 /**
  * Функция отписывающая все функции от определённого события
@@ -72,12 +74,10 @@ PubSub.prototype.publish = function(eventName, data) {
  */
 PubSub.prototype.off = function(eventName) {
 
-    if (this.handlerBox[eventName] == undefined){
-        return false;
-    } else { 
-        this.handlerBox[eventName] = undefined;
-        return true;
-    }
+    if (!this.handlerBox[eventName]) return false;
+    
+    this.handlerBox[eventName] = undefined;
+    return true;
 };
 
 var PubSub = new PubSub();
