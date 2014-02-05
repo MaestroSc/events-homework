@@ -4,6 +4,14 @@
  */
 function PubSub(){
     this.handlerBox = {};
+    var thisFunction = this;
+
+    Function.prototype.subscribe = function(event){
+        thisFunction.subscribe(event, this);
+    }
+    Function.prototype.unsubscribe = function(event){
+        thisFunction.unsubscribe(event, this);
+    }
 };
 
 /**
@@ -13,8 +21,12 @@ function PubSub(){
  * @return {function}         ссылка на handler
  */
 PubSub.prototype.subscribe = function(eventName, handler) {
+
     if (this.handlerBox[eventName] == undefined) this.handlerBox[eventName] = [];
-    if (this.handlerBox[eventName].indexOf(handler) == -1) PubSub.handlerBox[eventName].push(handler);
+
+    var thisHandler = this.handlerBox[eventName];
+
+    if (thisHandler.indexOf(handler) == -1) thisHandler.push(handler);
     return handler;
 };
 
@@ -25,10 +37,10 @@ PubSub.prototype.subscribe = function(eventName, handler) {
  * @return {function}         ссылка на handler
  */
 PubSub.prototype.unsubscribe = function(eventName, handler) {
+    var handlerIndex = this.handlerBox[eventName].indexOf(handler),
+        thisHandler = this.handlerBox[eventName];
 
-    var tempWay = this.handlerBox[eventName].indexOf(handler);
-
-    if (tempWay != -1) this.handlerBox[eventName].splice(tempWay, 1);
+    if (handlerIndex != -1) thisHandler.splice(handlerIndex, 1);
 
     return handler;
 };
@@ -87,14 +99,6 @@ var PubSub = new PubSub();
     Дополнительный вариант — без явного использования глобального объекта
     нужно заставить работать методы верно у любой функции
  */
-
-Function.prototype.subscribe = function(event){
-    PubSub.subscribe(event, this);
-}
-
-Function.prototype.unsubscribe = function(event){
-    PubSub.unsubscribe(event, this);
-}
 
 function foo(event, data) {
     //body…
