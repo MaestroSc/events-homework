@@ -22,13 +22,12 @@ function PubSub(){
  */
 PubSub.prototype.subscribe = function(eventName, handler) {
     
-    var thisHandler = this.handlerBox; //Если объявить с [eventName], то 
+    var thisHandler = this.handlerBox[eventName]; 
 
-    if (!thisHandler[eventName]) thisHandler[eventName] = []; // здесь тогда в объекте некорректно создастся поле для [eventName] и 
-
-    thisHandler = thisHandler[eventName];
+    if (!thisHandler) thisHandler = this.handlerBox[eventName] = []; 
     
-    if (thisHandler.indexOf(handler) == -1) thisHandler.push(handler); // здесь результат indexOf будет undefained
+    if (thisHandler.indexOf(handler) == -1) thisHandler.push(handler);
+
     return handler;
 };
 
@@ -39,7 +38,8 @@ PubSub.prototype.subscribe = function(eventName, handler) {
  * @return {function}         ссылка на handler
  */
 PubSub.prototype.unsubscribe = function(eventName, handler) {
-    var thisHandler = this.handlerBox[eventName], handlerIndex = thisHandler.indexOf(handler);
+    var thisHandler = this.handlerBox[eventName],
+    handlerIndex = thisHandler.indexOf(handler);
 
     if (handlerIndex != -1) thisHandler.splice(handlerIndex, 1);
 
